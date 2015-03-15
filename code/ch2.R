@@ -16,3 +16,14 @@ boxplot(wcgs$sbp)
 #QQPlot for Normality
 qqnorm(wcgs$sbp)
 qqline(wcgs$sbp)
+
+
+##Scatterplot of sbp vs weight
+ggplot(wcgs, aes(x=sbp, y=weight)) +geom_point(shape=1) + geom_smooth() 
+
+##Scatterplot of sbp vs weight colored by smoking with LOESS curve
+ggplot(wcgs, aes(x=sbp, y=weight,color=smoke)) +geom_point(shape=1) + geom_smooth() 
+
+
+##Scatterplot of sbp vs weight colored by behpat with LOESS curve
+ggplot(wcgs, aes(x=sbp, y=weight,color=behpat)) +geom_point(shape=1) + geom_smooth() 
