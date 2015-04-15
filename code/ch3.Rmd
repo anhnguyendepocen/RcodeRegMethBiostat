@@ -1,0 +1,28 @@
+---
+title: "ch3"
+author: "Chirag Lakhani"
+date: "April 15, 2015"
+output: html_document
+---
+
+This dataset is the Heart and Estrogen/Progestin Study (HERS), a clinical trial of hormone therapy for prevention of recurrent heart attacks and deaths among 2,763 post-menopausal women with existing coronary heart disease. 
+
+We will first calculate a t-test to compare the difference in glucose levels based on excercise
+```{r}
+library(ggplot2)
+hersdata <- read.delim("hersdata.txt")
+head(hersdata[,c('glucose','exercise')])
+ggplot(hersdata, aes(x=glucose, fill=exercise)) + geom_bar(position="dodge") + ggtitle("Distribution of glucose levels for both exercise groups")
+
+qplot(exercise, glucose, data=hersdata, geom=c("boxplot"), 
+   fill=exercise, main="Boxplot of Glucose Level by Exercise",
+   xlab="", ylab="Glucose Level")
+
+```
+
+Now we will calculate the t-test for average glucose values by exercise 
+```{r}
+exerciseYes <- hersdata[hersdata$exercise=='yes',]
+exerciseNo <- hersdata[hersdata$exercise=='no',]
+t.test(exerciseYes$glucose,exerciseNo$glucose)
+```
