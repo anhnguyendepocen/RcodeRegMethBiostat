@@ -4,8 +4,15 @@ author: "Chirag Lakhani"
 date: "April 15, 2015"
 output: html_document
 ---
+setwd("~/Documents/gitProjects/RcodeRegMethBiostat/code")
 
 This dataset is the Heart and Estrogen/Progestin Study (HERS), a clinical trial of hormone therapy for prevention of recurrent heart attacks and deaths among 2,763 post-menopausal women with existing coronary heart disease. 
+
+# Continuous Outcome Variables
+
+
+
+## T-test Example
 
 We will first calculate a t-test to compare the difference in glucose levels based on excercise
 ```{r}
@@ -25,4 +32,87 @@ Now we will calculate the t-test for average glucose values by exercise
 exerciseYes <- hersdata[hersdata$exercise=='yes',]
 exerciseNo <- hersdata[hersdata$exercise=='no',]
 t.test(exerciseYes$glucose,exerciseNo$glucose)
+
+```
+
+
+## ANOVA Example
+
+In this example we will look at the relationship between systolic blood pressure and ethnicity.  
+```{r}
+library(ggplot2)
+hersdata <- read.delim("hersdata.txt")
+sbpEthnicity <- hersdata[,c('raceth','SBP')]
+tapply(sbpEthnicity$SBP, sbpEthnicity$raceth, mean)
+qplot(raceth, SBP, data=sbpEthnicity, geom=c("boxplot"), 
+   fill=raceth, main="Boxplot of Systolic Blood Pressure by Ethnicity",
+   xlab="", ylab="SBP")
+```
+
+We see that the mean for African Americans is highest, followed by Other, and lastly White.  We will perform an ANOVA test to see if there difference among the three is statistically significant.
+```{r}
+attach(sbpEthnicity)
+fligner.test(SBP~raceth)
+model <- aov(SBP~raceth)
+summary(model)
+```
+
+### Multiple Comparisons
+It seems that there is some difference in these groups among the three, but we want to know what are those differences.  We can do pairwise comparisons of these ethnicities to see which groups are different.  We will account for multiple comparisons by using various p-value adjustments such as Bonferroni, Holm, Hochberg, Hommel, etc...
+
+```{r}
+pairwise.t.test(SBP,raceth,p.adjust.method="holm")
+pairwise.t.test(SBP,raceth,p.adjust.method="hochberg")
+pairwise.t.test(SBP,raceth,p.adjust.method="bonferroni")
+pairwise.t.test(SBP,raceth,p.adjust.method="hommel")
+pairwise.t.test(SBP,raceth,p.adjust.method="BH")
+pairwise.t.test(SBP,raceth,p.adjust.method="fdr")
+```
+
+All of these methods seem to show is a statistically significant difference in SBP between Whites and African Americans
+
+
+
+#Categorical Outcome Variables
+
+
+## Measures of Risk and Association
+
+### Risk Difference
+
+```{r}
+
+library(aod)
+
+wcgs <- read.csv("wcgs.csv")
+tableComparison <- table(wcgs$arcus,wcgs$chd69)
+tableComparison <- tableComparison[,c(2,1)]
+prop.test(table(wcgs$arcus,wcgs$chd69))
+
+tableXtabs <- xtabs(~arcus+chd69,data=wcgs)
+prop.test(tableXtabs)
+```
+
+### Risk Ratio
+```{r}
+library(epitools)
+riskratio(tableXtabs, method = c("wald"),conf.level = 0.95,rev = c("neither", "rows", "columns", "both"))
+```
+### Odds Ratio
+```{r}
+oddsratio(tableXtabs, method = c("wald"),conf.level = 0.95,rev = c("neither", "rows", "columns", "both"))
+```
+
+### Multiple Predictors
+
+```{r}
+multiPredictors <- xtabs(~agec+chd69,data=wcgs)
+
+prop.test(multiPredictors)
+riskratio(multiPredictors, method = c("wald"),conf.level = 0.95,rev = c("neither", "rows", "columns", "both"))
+
+oddsratio(multiPredictors, method = c("wald"),conf.level = 0.95,rev = c("neither", "rows", "columns", "both"))
+
+epitab(multiPredictors,method = c("oddsratio", "riskratio", "rateratio"))
+
 ```
