@@ -1,0 +1,53 @@
+---
+title: "ch4"
+author: "Chirag Lakhani"
+date: "May 2, 2015"
+output: html_document
+---
+
+setwd("~/Documents/gitProjects/RcodeRegMethBiostat/code")
+
+
+# Linear Regression Examples
+
+## Multiple Linear Regression
+
+```{r}
+library(ggplot2)
+library(GGally)
+hersdata <- read.delim("hersdata.txt")
+hersdataMLN <- hersdata[hersdata$diabetes == 'no',c('glucose', 'exercise','age', 'drinkany', 'BMI')]
+qplot(exercise, glucose, data=hersdataMLN, fill=exercise,geom=c("boxplot"),main='Average Glucose Level by Exercise Group')
+model_exercise <- lm(glucose~exercise, data=hersdataMLN)
+summary(model_exercise)
+
+ggpairs(hersdataMLN,lower=list(continuous = "points", combo = "box", discrete="ratio"),upper='blank')
+
+
+model_age <- lm(glucose~age,data=hersdataMLN)
+summary(model_age)
+
+model_drinkany <- lm(glucose~drinkany,data=hersdataMLN)
+summary(model_drinkany)
+
+model_BMI <- lm(glucose~BMI,data=hersdataMLN)
+summary(model_BMI)
+
+
+model_all <- lm(glucose~exercise+age+drinkany+BMI,data=hersdataMLN)
+summary(model_all)
+```
+
+
+
+
+## Categorical Predictors
+```{r}
+hersdataPhysActGlucose <- hersdata[hersdata$diabetes == 'no',c('glucose', 'physact')]
+
+qplot(physact, glucose, data=hersdataPhysActGlucose, fill=physact,geom=c("boxplot"),main='Average Glucose Level by Physical Activity')
+
+model_physact <- lm(glucose~physact,data=hersdataPhysActGlucose)
+summary(model_physact)
+
+```
