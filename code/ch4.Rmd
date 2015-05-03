@@ -51,3 +51,43 @@ model_physact <- lm(glucose~physact,data=hersdataPhysActGlucose)
 summary(model_physact)
 
 ```
+
+
+## Confounding Variables
+In many instances we want to know if there are any confounding variables in our analysis.  Multiple linear regression gives a method for people to test for confounding variables.  In the HERS data set we want to test for the association between BMI is a causal effect of LDL levels, but there could be confounding variables such as age, smoking, ethnicity, and drinking habits that could confound such an observation.
+
+```{r}
+modelBMILDL <- lm(LDL~BMI,data=hersdata)
+summary(modelBMILDL)
+
+ggplot(hersdata, aes(x=BMI, y=LDL)) + geom_point(shape=1) + geom_smooth(method=lm)
+
+```
+
+
+Based on this linear regression model it seems that the BMI variable is statistically significant, but if we incorporate other variables such as age, smoking, ethnicity, and drinking habits we will see the coefficient for BMI reduce significantly.
+
+```{r}
+modelBMIConfounders <- lm(LDL~BMI+age+as.factor(nonwhite)+as.factor(smoking)+as.factor(drinkany),data=hersdata)
+summary(modelBMIConfounders)
+
+modelBMInonwhite <- lm(LDL~BMI+as.factor(nonwhite),data=hersdata)
+summary(modelBMInonwhite)
+
+modelBMIage <- lm(LDL~BMI+age,data=hersdata)
+summary(modelBMIage)
+
+
+modelBMIsmoking <- lm(LDL~BMI+as.factor(smoking),data=hersdata)
+summary(modelBMIsmoking)
+
+modelBMIdrinkany <- lm(LDL~BMI+as.factor(drinkany),data=hersdata)
+summary(modelBMIdrinkany)
+
+
+percentchange <- (0.3589-0.4151)/0.4151
+
+percentchange
+```
+
+The coefficient changed by ~13% which seems to suggest BMI has some confounding variables.
